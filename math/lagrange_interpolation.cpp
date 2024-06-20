@@ -1,6 +1,10 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define LL long long
+#define pb push_back
+#define all(x) x.begin(),x.end()
+#define S second
+#define F first
 const int KL=1e6+10;
 
 
@@ -23,9 +27,10 @@ void init(){
     for(int i=1;i<KL;i++)inv[i]=mul(inv[i-1],invi[i]);
 }
 
-// works only for points where x_i = i from 0 to y.size()-1
-// values are integers 
-// depends on the MOD and factorials (init() should be called before using this function)
+// Works only for points where x_i = i from 0 to y.size()-1
+// Values are integers 
+// Depends on the MOD and factorials (init() should be called before using this function)
+// x should be equal to any 0<=i<y.size() (otherwise, mod inverse will fail)
 int lagrange_interpolation(vector<int>& y,int x){
     int numerator=1,ret=0;
     for(int i=0;i<(int)y.size();i++){
@@ -40,4 +45,57 @@ int lagrange_interpolation(vector<int>& y,int x){
         ret=add(ret,mul(y[i],numerator_i));
     }
     return ret;
+}
+
+// The same rules as above 
+// Handles the case when x can equal to some i (does not use mod inverse)
+int lagrange_interpolation_pre_calc(vector<int>& y,int x){
+    int numerator=1,ret=0;
+    vector<int> prefix,suffix;
+    for(int i=0;i<(int)y.size();i++){
+        numerator=mul(numerator,sub(x,i));
+        prefix.pb(numerator);
+    }
+    numerator=1;
+    for(int i=(int)y.size()-1;i>=0;i--){
+        numerator=mul(numerator,sub(x,i));
+        suffix.pb(numerator);
+    }reverse(all(suffix));
+
+    for(int i=0;i<(int)y.size();i++){
+        int L=inv[i];
+        int R=((y.size()-1-i)%2==0?inv[(int)y.size()-1-i]:sub(0,inv[(int)y.size()-1-i]));
+        int denominator_inv=mul(L,R); // inverse of denominator
+        int numerator_i=mul((i==0?1:prefix[i-1]),(i==(int)y.size()-1?1:suffix[i+1]));
+        numerator_i=mul(denominator_inv,numerator_i);
+        ret=add(ret,mul(y[i],numerator_i));
+    }
+    return ret;
+}
+
+// It's not tested yet
+// General function for lagrange interpolation
+vector<int> lagrange_interpolation(vector<pair<LL,int>>& vec,vector<LL>& xs){
+    vector<int> denominator((int)vec.size(),1);
+    for(int i=0;i<(int)vec.size();i++){
+        for(int j=0;j<(int)vec.size();j++){
+            if(i==j)continue;
+            denominator[i]=mul(denominator[i],sub(vec[i].F%MOD,vec[j].F%MOD));
+        }
+        denominator[i]=poow(denominator[i],MOD-2);
+    }
+    vector<int> ys;
+    for(auto x:xs){
+        int sum=0;
+        for(int i=0;i<(int)vec.size();i++){
+            int prod=denominator[i];
+            for(int j=0;j<(int)vec.size();j++){
+                if(j==i)continue;
+                prod=mul(prod,sub(x%MOD,vec[j].F%MOD));
+            }
+            sum=add(sum,mul(vec[i].S,prod));
+        }
+        ys.pb(sum);
+    }
+    return ys;
 }
