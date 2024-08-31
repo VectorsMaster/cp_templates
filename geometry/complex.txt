@@ -1,0 +1,39 @@
+typedef complex<double> point;
+#define x real()
+#define y imag()
+
+
+point rot(point a,point o,double alpha){
+   //alpha degree
+    return (a-o)*polar(1.0,alpha*PI/180.0)+o;
+}
+//<bac
+LD getangle(point a,point b,point c){
+    return abs(arg((b-a)/(c-a)))*180.0/PI;
+    //degree
+}
+
+point reflect(point p,point a,point b){
+    return a+conj((p-a)/(b-a))*(b-a);
+}
+LD dist(point a,point b){
+    //A->B
+    point ret=a-b;
+    return sqrt(ret.x*ret.x + ret.y*ret.y);
+}
+LD dist(point p,point a,point b){
+    //P-> AB
+    point p1=reflect(p,a,b);
+    point mid=(p1+p)/2.0;
+    return dist(mid,p);
+}
+point inter(point a,point b,point c,point d){
+    LD m1=(a.y-b.y)/(a.x-b.x);
+    LD p1=a.y-m1*a.x;
+    LD m2=(c.y-d.y)/(c.x-d.x);
+    LD p2=c.y-m2*c.x;
+    LD v=(p1-p2)/(m2-m1);
+    LD u=m1*v+p1;
+    point ret(v,u);
+    return ret;
+}

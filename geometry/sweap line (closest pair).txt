@@ -1,0 +1,76 @@
+#include<bits/stdc++.h>
+#include <stdio.h>
+#include <algorithm>
+
+#define all(x) x.begin(),x.end()
+#define sc(x) scanf("%d",&x)
+#define scl(x) scanf("%lld",&x)
+#define pr(x) printf("%d",x)
+#define prl(x) printf("%lld",x)
+#define LL long long
+#define LD long double
+#define pb push_back
+#define PB pop_back
+#define PF pop_front
+#define F first
+#define S second
+#define inrow(vec)    for(int i=0;i<vec.size();i++)cout<<vec[i]<<" ";
+#define incoloum(vec) for(int i=0;i<vec.size();i++)cout<<vec[i]<<endl;
+
+const double PI=3.1415926;
+const int KL=5e4+10;
+const LL inf=1e10;
+
+using namespace std;
+
+int n;
+pair <LL,LL> a[KL];
+multiset <pair<LL,LL>> LY;
+map <pair<LL,LL>,int> mp;
+
+LD dis(LD x1,LD y1,LD x2,LD y2){return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));}
+
+
+int main()
+{
+    sc(n);
+    for(int i=0;i<n;i++){scl(a[i].F);scl(a[i].S);mp[{a[i].S,a[i].F}]=i;}
+    sort(a,a+n);
+    for(int i=0;i<n;i++)swap(a[i].F,a[i].S);
+    LY.insert(a[0]);
+    int left=0;
+    LD best=1000000000000000.0;
+    int p1=-1,p2=-1;
+    for(int i=1;i<n;i++)
+    {
+        LD x1=(LD)a[i].S;
+        LD y1=(LD)a[i].F;
+
+
+
+        while(left<i && x1-(LD)a[left].S>best){LY.erase(a[left]);left++;}
+        auto st=LY.lower_bound({y1-best,-inf});
+        auto en=LY.upper_bound({y1+best,-inf});
+
+        for(;st!=en;st++)
+        {
+
+            LD x2=(LD)(*st).S;
+            LD y2=(LD)(*st).F;
+
+            LD d=dis(x1,y1,x2,y2);
+            if(d<best)
+            {
+                p2=mp[{y2,x2}];
+                p1=mp[a[i]];
+
+                best=d;
+            }
+
+        }
+        LY.insert(a[i]);
+    }
+    if(p1>p2)swap(p1,p2);
+    printf("%d %d %.6llf\n",p1,p2,best);
+    return 0;
+}

@@ -1,0 +1,217 @@
+#include<bits/stdc++.h>
+
+#define all(x) x.begin(),x.end()
+#define sc(x) scanf("%d",&x)
+#define scl(x) scanf("%lld",&x)
+#define LL long long
+#define LD long double
+#define pb push_back
+#define F first
+#define S second
+
+const double PI=3.1415926535897932384626433;
+const int KL=1e6;
+const LL MOD=1e9+7;
+
+using namespace std;
+
+///2D geometry
+struct point{
+    LL x,y;
+    void go(LL x1,LL y1){x=x1;y=y1;}
+    void read(){scl(x);scl(y);}
+    point operator -(point b){return point{x-b.x,y-b.y};}
+    point operator +(point b){return point{x+b.x,y+b.y};}
+    LD dis(){return (LD)sqrt((LD)(x*x+y*y));}
+    LD angle(point origin){
+        point nw= *this - origin;
+        LD ret=acos((LD)fabs(nw.x)/nw.dis());
+        if(nw.x<0 && nw.y<0)ret+=PI;
+        else if(nw.x<0 && nw.y>=0)ret=PI-ret;
+        else if(nw.x>=0 && nw.y<0)ret=2*PI-ret;
+        return ret;
+    }
+};
+bool Between(point p1,point p2,point p){
+    if(p.x<min(p1.x,p2.x) || p.x>max(p1.x,p2.x))return 0;
+    if(p.y<min(p1.y,p2.y) || p.y>max(p1.y,p2.y))return 0;
+    return 1;
+}
+pair<bool,point> IntegerIntersection(point u,point v,point p,point q){
+	// for numbers up tp 1e9 it can make overflow
+    point ret;ret.x=-1,ret.y=-1;
+    /// ax+ by +c =0 -> a(x1-x2)=b(y2-y1)
+    LL a1=v.y-u.y, b1=u.x-v.x; LL c1=-a1*u.x -b1*u.y;
+    LL a2=q.y-p.y, b2=p.x-q.x; LL c2=-a2*p.x -b2*p.y;
+    if(a1==0 && a2==0)return {0,ret};
+    else if(a1==0){
+        if(c1%b1!=0)return {0,ret};
+        ret.y=-c1/b1;
+        ret.x=-b2*ret.y-c2;
+        if(ret.x%a2!=0)return {0,ret};
+        ret.x/=a2;
+    }
+    else if(a2==0){
+        if(c2%b2!=0)return {0,ret};
+        ret.y=-c2/b2;
+        ret.x=-b1*ret.y-c1;
+        if(ret.x%a1!=0)return {0,ret};
+        ret.x/=a1;
+    }
+    else if(b2*a1==b1*a2)return {0,ret};
+    else if(b1==0){
+        if(c1%a1!=0)return {0,ret};
+        ret.x=-c1/a1;
+        ret.y=-a2*ret.x-c2;
+        if(ret.y%b2!=0)return {0,ret};
+        ret.y/=b2;
+    }
+    else if(b2==0){
+        if(c2%a2!=0)return {0,ret};
+        ret.x=-c2/a2;
+        ret.y=-a1*ret.x-c1;
+        if(ret.y%b1!=0)return {0,ret};
+        ret.y/=b1;
+    }
+    else {
+        /// a1 x + b1 y + c1=0
+        /// a2 x + b2 y + c2=0
+        /// y= -(a2 x + c2)/b2
+        /// a1 x - (b1/b2)*(a2 x + c2) + c1=0
+        /// a1 x - (b1*a2/b2) x -(b1*c2/b2) + c1=0
+        /// x (a1 - b1*a2/b2) = b1*c2/b2 -c1
+        /// x = (b1*c2/b2 -c1)/ (a1-b1*a2/b2)
+        /// x = (b1*c2-c1*b2) / (a1*b2-b1*a2)
+        ret.x=b1*c2-c1*b2;
+        if(ret.x%(a1*b2-b1*a2)!=0)return {0,ret};
+        ret.x/=(a1*b2-b1*a2);
+        ret.y= -(a1*ret.x+c1);
+        if(ret.y%b1!=0)return {0,ret};
+        ret.y/=b1;
+    }
+    ///cout<<ret.x<<" "<<ret.y<<endl;
+    if(Between(v,u,ret) && Between(p,q,ret))return {1,ret};
+    else return {0,ret};
+
+}
+
+bool pointVSpoint(point a,point b){
+    return a.x==b.x && a.y==b.y;
+}
+LD DIS(point p1,point p2){ /// Double
+    p1.x-=p2.x; p1.y-=p2.y;
+    return sqrt((LD)(p1.x*p1.x+p1.y*p1.y));
+}
+LD fnd_angle(point p){ /// angle x o p  (rad%2PI)
+    LD len=sqrt(p.x*p.x+p.y*p.y);
+    LD angle=acos(fabs(p.x)/len);
+    if(p.y<0){
+        if(p.x>=0)angle=2*PI-angle;
+        else angle+=PI;
+    }
+    else if(p.x<0)angle=PI-angle;
+    return angle;
+}
+LD crp(point a,point b){
+    return a.x*b.y-b.x*a.y;
+}
+LL areaoftriangle(point a,point b,point c){
+    /// Double area
+    return abs(crp(a,b)+crp(b,c)+crp(c,a));
+}
+bool pointVSseg(point a,point b,point c){
+    return (crp(b-a,b-c)==0 && a.x>=min(b.x,c.x) && a.x<=max(b.x,c.x) && a.y>=min(b.y,c.y) && a.y<=max(b.y,c.y));
+}
+LL orientation(point a,point b,point c){
+    /// we are looking from a to b
+    LL val=crp(b-a,c-a);
+    if(val==0)return 0;
+    else if(val<0)return 1;/// b on the left from c
+    else return 2;/// b on the right from c
+}
+bool intersection(point p1,point p2,point p3,point p4){
+    if(crp(p2-p1,p4-p3)==0){
+        /// two segment are parallel
+        if(pointVSseg(p1,p3,p4) || pointVSseg(p2,p3,p4))return 1;
+        if(pointVSseg(p3,p1,p2) || pointVSseg(p4,p1,p2))return 1;
+        return false;
+    }
+    LL sign1=crp(p2-p1,p3-p1);
+    LL sign2=crp(p2-p1,p4-p1);
+    if((sign1<0 && sign2<0) || (sign1>0 && sign2>0))return false;
+    sign1=crp(p4-p3,p1-p3);
+    sign2=crp(p4-p3,p2-p3);
+    if((sign1<0 && sign2<0) || (sign1>0 && sign2>0))return false;
+    return 1;
+}
+LD DistanceFromSegment(point p1,point p2,point p){
+    LD a3=DIS(p1,p2);
+    LD a1=DIS(p1,p);
+    LD a2=DIS(p2,p);
+    LD cosangle1=(LD)(a2*a2+a3*a3-a1*a1)/(LD)(2*a2*a3);
+    LD cosangle2=(LD)(a1*a1+a3*a3-a2*a2)/(LD)(2*a1*a3);
+    if(cosangle1<=0 || cosangle2<=0){
+        return min(a1,a2);
+    }
+    /// a*x1 + b*y1 + c =0
+    /// a*x2 + b*y2 + c =0
+    /// a(x1-x2) +b(y1-y2) =0
+    /// a(x1-x2) = b(y2-y1)
+    LL a=p2.y-p1.y;
+    LL b=p1.x-p2.x;
+    LL c=-1*(a*p1.x+b*p1.y);
+    LL g=__gcd(__gcd(a,b),c);
+    a/=g, b/=g, c/=g;
+    LD DistanceFromLine=(LD)abs(a*p.x+b*p.y+c)/(LD)sqrt((LD)(a*a + b*b));
+    return DistanceFromLine;
+
+}
+LL n,m;
+point p[KL];
+LL areaofpolygon(int sz){
+    ///0_based + Double area
+    p[sz]=p[0];
+    LL ret=0;
+    for(int i=1;i<=sz;i++)ret+= crp(p[i-1],p[i]);
+    return abs(ret);
+}
+LL pointVSpolygon(point a,int sz){
+    /// 0_outside 1_inside 2_boundary
+    p[sz]=p[0];
+    point b;b.go(a.x+1,1e9+10);
+    LL cnt=0;
+    for(int i=1;i<=sz;i++){
+        if(pointVSseg(a,p[i-1],p[i]))return 2;
+        if(intersection(a,b,p[i-1],p[i]))cnt++;
+    }
+    if(cnt&1)return 1;
+    else return 0;
+}
+bool cmp(point a,point b){
+    if(a.x<b.x)return 1;
+    if(a.x==b.x && a.y<=b.y)return 1;
+    return 0;
+}
+LL DIS(point a,point b){
+    a=a-b;
+    return a.x*a.x + a.y*a.y;
+}
+LL MED(){
+    vector <point> a;
+    multiset <pair<LL,LL>> s;
+    for(int i=0;i<n;i++)a.pb(p[i]);
+    sort(all(a),cmp);
+    LL best=8e18,l=-1;
+    for(int i=0;i<n;i++){
+        while(l+1<i && (a[i].x-a[l+1].x)*(a[i].x-a[l+1].x)>=best)s.erase({a[l+1].y,a[l+1].x}),l++;
+        auto st=s.lower_bound({a[i].y-best,-inf});
+        auto en=s.upper_bound({a[i].y+best,-inf});
+        for(;st!=en;st++){
+            point v;v.go((*st).S,(*st).F);
+            best=min(best,DIS(a[i],v));
+        }
+        s.insert({a[i].y,a[i].x});
+    }
+    return best;
+}
+

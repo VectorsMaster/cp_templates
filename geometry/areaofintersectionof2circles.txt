@@ -1,0 +1,18 @@
+const double PI=3.1415926535897932384626;
+struct crc{
+    LD x,y,r;
+};
+LD dis(LD x1,LD y1,LD x2,LD y2){
+    return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+}
+LD area(crc A,crc B){
+    LD d=dis(A.x,A.y,B.x,B.y);
+    if(d>=A.r+B.r)return 0.0;
+    if(d+A.r<=B.r)return PI*A.r*A.r;
+    if(d+B.r<=A.r)return PI*B.r*B.r;
+    LD alpha= acos((A.r*A.r+d*d-B.r*B.r)/(2.0*A.r*d));
+    LD beta = acos((B.r*B.r+d*d-A.r*A.r)/(2.0*B.r*d));
+    LD area1=(A.r*A.r*alpha)-(A.r*A.r*cos(alpha)*sin(alpha));
+    LD area2=(B.r*B.r*beta)-(B.r*B.r*cos(beta)*sin(beta));
+    return area1+area2;
+}

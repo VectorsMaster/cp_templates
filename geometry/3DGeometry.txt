@@ -1,0 +1,128 @@
+#include<bits/stdc++.h>
+#define all(x) x.begin(),x.end()
+#define sc(x) scanf("%d",&x)
+#define scl(x) scanf("%lld",&x)
+#define LL long long
+#define LD double
+#define pb push_back
+#define F first
+#define S second
+const double PI=3.1415926535897932384626433;
+const int KL=1e6+10;
+const LL MOD=1e9+7;
+const LD eps=1e-13;
+using namespace std;
+
+
+
+struct point{
+    LL x,y,z,norm;
+    point(){
+        x=0;
+        y=0;
+        z=0;
+        norm=0;
+    }
+    point(LL _x,LL _y,LL _z){
+        x=_x;
+        y=_y;
+        z=_z;
+        norm=x*x+y*y+z*z;
+    }
+    void go(LL _x,LL _y,LL _z){
+        x=_x;
+        y=_y;
+        z=_z;
+    }
+    void prnt(){
+        cout<<x<<" "<<y<<" "<<z<<endl;
+    }
+
+};
+point sub(point a,point b){
+    point ret(a.x-b.x,a.y-b.y,a.z-b.z);
+    return ret;
+}
+point crp(point a,point b){
+    point ret(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-b.x*a.y);
+    return ret;
+}
+int n;
+point a[KL];
+
+
+LD DIS(point& ret,LL& d,point& cur){
+    return  ((LD)abs(ret.x*cur.x+ret.y*cur.y+ret.z*cur.z+d))/sqrt((LD)ret.norm);
+}
+
+LL D(point ret,point cur){
+    return -(ret.x*cur.x+ret.y*cur.y+ret.z*cur.z);
+}
+LD check(point& ret,point& u,point& w){
+    if(ret.x==0 && ret.y==0 && ret.z==0)return 1e18;
+    LL d1=D(ret,u);
+    LL d2=D(ret,w);
+    LD rem=DIS(ret,d1,w);
+    if(d1>d2)swap(d1,d2);
+    for(int i=1;i<=n;i++){
+        LL curd=D(ret,a[i]);
+        if(curd>d2 || curd<d1)return 1e18;
+    }
+    return rem;
+}
+
+
+int main(){
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+
+    cin>>n;
+    for(int i=1;i<=n;i++){
+        int u,v,w;
+        cin>>u>>v>>w;
+        a[i].go(u,v,w);
+    }
+    bool ok=0;
+    LD mn=1e18;
+    for(int i=1;i<=n;i++){
+        for(int j=i+1;j<=n;j++){
+            for(int k=j+1;k<=n;k++){
+                point c=crp(sub(a[i],a[j]),sub(a[k],a[j]));
+                if(c.x==0 && c.y==0 && c.z==0)continue;
+                ok=1;
+                LL d=D(c,a[j]);
+                LL p=1;
+                for(int f=1;f<=n;f++){
+                    if(DIS(c,d,a[f])>DIS(c,d,a[p])){
+                        p=f;
+                    }
+                }
+                mn=min(mn,check(c,a[j],a[p]));
+            }
+        }
+    }
+    for(int i=1;i<=n;i++){
+        for(int j=i+1;j<=n;j++){
+            for(int k=j+1;k<=n;k++){
+                for(int u=k+1;u<=n;u++){
+
+                    point c=crp(sub(a[i],a[j]),sub(a[k],a[u]));
+                    mn=min(mn,check(c,a[i],a[k]));
+                    c=crp(sub(a[i],a[k]),sub(a[j],a[u]));
+                    mn=min(mn,check(c,a[i],a[j]));
+                    c=crp(sub(a[i],a[u]),sub(a[j],a[k]));
+                    mn=min(mn,check(c,a[i],a[j]));
+
+                }
+            }
+        }
+    }
+    if(!ok){
+        cout<<0<<"\n";
+    }
+    else {
+        cout<<fixed<<setprecision(11)<<mn<<"\n";
+    }
+    return 0;
+}

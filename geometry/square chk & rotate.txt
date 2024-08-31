@@ -1,0 +1,32 @@
+struct point{
+    LL x,y;
+};
+
+point rot90c(point a,point b){
+    point c;
+    c.x= -(a.y-b.y)+b.x;
+    c.y=  (a.x-b.x)+b.y;
+    return c;
+}
+LL dist(point a,point b){
+    return (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y);
+}
+
+point vecfd(point a,point b){
+    point ret;
+    ret.x=a.x-b.x;
+    ret.y=a.y-b.y;
+    return ret;
+}
+bool issquare(vector <point> l){
+    vector <pair<LL,LL>> dis;
+    dis.pb({dist(l[0],l[1]),1});
+    dis.pb({dist(l[0],l[2]),2});
+    dis.pb({dist(l[0],l[3]),3});
+    sort(all(dis));
+    if(dis[0].F==0 || dis[0].F!=dis[1].F || dis[0].F+dis[1].F!=dis[2].F)return false;
+    int q=dis[2].S;
+    int d=dis[1].S;
+    int w=dis[0].S;
+    return (dist(l[q],l[d])==dist(l[q],l[w]) && dist(l[d],l[w])!=0);
+}

@@ -1,0 +1,8 @@
+Pick's Theeorem:
+A = I + (B/2) -1
+A ==> Area of Polygon
+B ==> Number of integral points on edges of polygon
+I ==> Number of integral points inside the polygon
+
+Number of integral points on segmet [V1,V2]:(between)
+GCD(abs(V1.x-V2.x), abs(V1.y-V2.y)) - 1
