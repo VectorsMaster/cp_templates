@@ -1,12 +1,13 @@
 #include<map>
 #include<vector>
+#include<set>
 #define LL long long
 #define F first 
 #define S second
 #define pb push_back
 using namespace std;
 
-struct RangesDS {
+struct RangesDS { // stores ranges in the form l,r,val
     map<int,LL> st;
     RangesDS()= default;
     RangesDS(int N) {st[N+1]=-1;} // N+1 is first invalid index
