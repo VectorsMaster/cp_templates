@@ -1,26 +1,9 @@
 #include<bits/stdc++.h>
+using namespace std;
 
 #define pb push_back
 const int KL=1e6+10;
-using namespace std;
-int n,spt[KL][20];
-
-
-void buildst(){
-    for(int i=0;i<n;i++)spt[i][0]=a[i];
-    for(int j=1;(1<<j)<=n;j++){
-        for(int i=0;i+(1<<j)-1<n;i++){
-            spt[i][j]=__gcd(spt[i][j-1],spt[i+(1<<(j-1))][j-1]);
-        }
-    }
-}
-int query(int l,int r){
-    int len=(int)log2(r-l+1);
-    return __gcd(spt[l][len],spt[r-(1<<len)+1][len]);
-}
-
-
-int a[KL];
+int a[KL],n;
 vector<int> v;
 void compress(){
 	v.clear() ;
